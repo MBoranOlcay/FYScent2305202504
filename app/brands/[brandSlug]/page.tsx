@@ -2,7 +2,6 @@ import Image from 'next/image';
 import { supabase } from '@/lib/supabaseClient';
 import type { Brand, Product as Perfume, FragranceNote, ProductDetails } from '@/types';
 import { notFound } from 'next/navigation';
-import type { Metadata } from 'next';
 import PerfumeCard from '@/components/PerfumeCard';
 
 const createBrandSlugForURL = (brandName: string): string => {
@@ -91,7 +90,7 @@ async function getPerfumesByBrandId(brandId: string): Promise<Perfume[]> {
   }) as Perfume[];
 }
 
-// *** TYPE INLINE OLARAK VERİLDİ ***
+// generateMetadata fonksiyonunda tip belirtimi yok, import da yok!
 export async function generateMetadata({ params }: { params: { brandSlug: string } }) {
   const brand = await getBrandDetails(params.brandSlug);
   if (!brand) return { title: 'Marka Bulunamadı - FindYourScent' };
@@ -106,14 +105,12 @@ export async function generateMetadata({ params }: { params: { brandSlug: string
   };
 }
 
-// PARAMS YOK, SADECE BOŞ FONKSİYON
 export async function generateStaticParams() {
   const { data: brandsFromDB, error } = await supabase.from('brands').select('slug');
   if (error || !brandsFromDB) { return []; }
   return brandsFromDB.filter(b => b.slug).map((b) => ({ brandSlug: b.slug! }));
 }
 
-// *** TYPE INLINE OLARAK VERİLDİ ***
 export default async function BrandDetailPage({ params }: { params: { brandSlug: string } }) {
   const brand = await getBrandDetails(params.brandSlug);
   
