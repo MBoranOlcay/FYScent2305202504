@@ -5,13 +5,6 @@ import { notFound } from 'next/navigation';
 import PerfumeCard from '@/components/PerfumeCard';
 import { Metadata } from 'next';
 
-// Next.js'in PageProps tipiyle uyumlu şekilde params tipini belirtiyoruz
-type Props = {
-  params: { brandSlug: string };
-  searchParams: { [key: string]: string | string[] | undefined };
-}
-
-// Yardımcı fonksiyon
 const createBrandSlugForURL = (brandName: string): string => {
   if (!brandName) return "";
   return brandName.toLowerCase()
@@ -20,7 +13,6 @@ const createBrandSlugForURL = (brandName: string): string => {
 };
 
 async function getBrandDetails(slug: string): Promise<Brand | null> {
-  console.log(`[getBrandDetails] Fetching details for slug: ${slug}`);
   const { data, error } = await supabase
     .from('brands')
     .select(`
@@ -31,14 +23,7 @@ async function getBrandDetails(slug: string): Promise<Brand | null> {
     .eq('slug', slug)
     .single();
 
-  if (error) {
-    console.error('[getBrandDetails] Supabase error:', error);
-    return null;
-  }
-  if (!data) {
-    console.log(`[getBrandDetails] No data found for slug: ${slug}`);
-    return null;
-  }
+  if (error || !data) return null;
 
   let perfumeCount = 0;
   if (data.perfumes_count && Array.isArray(data.perfumes_count) && data.perfumes_count.length > 0) {
@@ -47,7 +32,6 @@ async function getBrandDetails(slug: string): Promise<Brand | null> {
     perfumeCount = data.perfumes_count;
   }
 
-  console.log(`[getBrandDetails] Successfully fetched data for slug: ${slug}`);
   return {
     id: data.id,
     name: data.name || 'Marka Adı Yok',
@@ -65,7 +49,6 @@ async function getBrandDetails(slug: string): Promise<Brand | null> {
 }
 
 async function getPerfumesByBrandId(brandId: string): Promise<Perfume[]> {
-  console.log(`[getPerfumesByBrandId] Fetching perfumes for brandId: ${brandId}`);
   const { data, error } = await supabase
     .from('perfumes')
     .select(`
@@ -81,16 +64,8 @@ async function getPerfumesByBrandId(brandId: string): Promise<Perfume[]> {
     .order('name', { ascending: true })
     .limit(20);
 
-  if (error) {
-    console.error('[getPerfumesByBrandId] Supabase error:', error);
-    return [];
-  }
-  if (!data) {
-    console.log(`[getPerfumesByBrandId] No perfumes found for brandId: ${brandId}`);
-    return [];
-  }
+  if (error || !data) return [];
 
-  console.log(`[getPerfumesByBrandId] Successfully fetched ${data.length} perfumes for brandId: ${brandId}`);
   return data.map(p => {
     const brandNameFromJoin = p.brand && typeof p.brand === 'object' && 'name' in p.brand ? (p.brand as { name: string }).name : 'Bilinmeyen Marka';
     return {
@@ -116,7 +91,7 @@ async function getPerfumesByBrandId(brandId: string): Promise<Perfume[]> {
   }) as Perfume[];
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: { brandSlug: string } }): Promise<Metadata> {
   const brand = await getBrandDetails(params.brandSlug);
   if (!brand) return { title: 'Marka Bulunamadı - FindYourScent' };
   return {
@@ -131,33 +106,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export async function generateStaticParams() {
-  console.log('[generateStaticParams] Fetching all brand slugs...');
   const { data: brandsFromDB, error } = await supabase.from('brands').select('slug');
-  if (error) {
-    console.error('[generateStaticParams] Supabase error:', error);
-    return [];
-  }
-  if (!brandsFromDB) {
-    console.log('[generateStaticParams] No brands found.');
-    return [];
-  }
-  // Buradaki nesne anahtarı 'brandSlug' olmalı!
-  // Yani: [{ brandSlug: "slug1" }, { brandSlug: "slug2" }]
-  const params = brandsFromDB.filter(b => b.slug).map((b) => ({ brandSlug: b.slug! }));
-  console.log(`[generateStaticParams] Found ${params.length} slugs.`);
-  return params;
+  if (error || !brandsFromDB) return [];
+  return brandsFromDB.filter(b => b.slug).map((b) => ({ brandSlug: b.slug! }));
 }
 
-export default async function BrandDetailPage({ params }: Props) {
-  console.log(`[BrandDetailPage] Rendering for slug: ${params.brandSlug}`);
+// HATA buradaydı: Props tipini kaldır, fonksiyonu böyle yaz!
+export default async function BrandDetailPage({
+  params
+}: {
+  params: { brandSlug: string }
+}) {
   const brand = await getBrandDetails(params.brandSlug);
 
   if (!brand) {
-    console.log(`[BrandDetailPage] Brand not found for slug: ${params.brandSlug}, calling notFound()`);
     notFound();
   }
   const brandPerfumes = brand.id ? await getPerfumesByBrandId(brand.id.toString()) : [];
-  console.log(`[BrandDetailPage] Found ${brandPerfumes.length} perfumes for brand: ${brand.name}`);
 
   return (
     <div className="min-h-screen bg-gray-50">
