@@ -91,6 +91,7 @@ async function getPerfumesByBrandId(brandId: string): Promise<Perfume[]> {
   }) as Perfume[];
 }
 
+// BURASI SAYFA METADATA'SI İÇİN (HEAD'İ DOLDURUR)
 export async function generateMetadata({ params }: { params: { brandSlug: string } }): Promise<Metadata> {
   const brand = await getBrandDetails(params.brandSlug);
   if (!brand) return { title: 'Marka Bulunamadı - FindYourScent' };
@@ -111,7 +112,7 @@ export async function generateStaticParams() {
   return brandsFromDB.filter(b => b.slug).map((b) => ({ brandSlug: b.slug! }));
 }
 
-// HATA buradaydı: Props tipini kaldır, fonksiyonu böyle yaz!
+// --- SADECE BİR ADET DEFAULT EXPORT ---
 export default async function BrandDetailPage({
   params
 }: {
