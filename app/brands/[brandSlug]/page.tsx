@@ -4,16 +4,19 @@ import type { Brand, Product as Perfume, FragranceNote, ProductDetails } from '@
 import { notFound } from 'next/navigation';
 import PerfumeCard from '@/components/PerfumeCard';
 
+// Yardımcı fonksiyon
 const createBrandSlugForURL = (brandName: string): string => {
-    if (!brandName) return "";
-    return brandName.toLowerCase().replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ş/g, 's').replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ç/g, 'c').replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
+  if (!brandName) return "";
+  return brandName.toLowerCase()
+    .replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ş/g, 's').replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ç/g, 'c')
+    .replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
 };
 
 async function getBrandDetails(slug: string): Promise<Brand | null> {
   const { data, error } = await supabase
     .from('brands')
     .select(`
-      id, name, slug, description, long_description, logo_url, banner_url, 
+      id, name, slug, description, long_description, logo_url, banner_url,
       founded_year, headquarters, category, is_featured,
       perfumes_count: perfumes(count)
     `)
@@ -50,13 +53,13 @@ async function getPerfumesByBrandId(brandId: string): Promise<Perfume[]> {
   const { data, error } = await supabase
     .from('perfumes')
     .select(`
-      id, 
-      name, 
-      slug, 
-      description, 
+      id,
+      name,
+      slug,
+      description,
       images,
-      details_family, 
-      brand:brands ( name ) 
+      details_family,
+      brand:brands ( name )
     `)
     .eq('brand_id', brandId)
     .order('name', { ascending: true })
@@ -64,9 +67,9 @@ async function getPerfumesByBrandId(brandId: string): Promise<Perfume[]> {
 
   if (error) return [];
   if (!data) return [];
-  
+
   return data.map(p => {
-    const brandNameFromJoin = p.brand && typeof p.brand === 'object' && 'name' in p.brand ? (p.brand as {name: string}).name : 'Bilinmeyen Marka';
+    const brandNameFromJoin = p.brand && typeof p.brand === 'object' && 'name' in p.brand ? (p.brand as { name: string }).name : 'Bilinmeyen Marka';
     return {
       id: p.id?.toString() ?? `brand-perf-${Math.random().toString(36).substring(7)}`,
       name: p.name ?? 'İsimsiz Parfüm',
@@ -74,10 +77,10 @@ async function getPerfumesByBrandId(brandId: string): Promise<Perfume[]> {
       brand: brandNameFromJoin,
       description: p.description ?? '',
       images: Array.isArray(p.images) ? p.images : [],
-      fragranceNotes: [] as FragranceNote[], 
-      details: { 
-          family: p.details_family ?? undefined,
-          gender: undefined, concentration: undefined, releaseYear: undefined, longevity: undefined, sillage: undefined,
+      fragranceNotes: [] as FragranceNote[],
+      details: {
+        family: p.details_family ?? undefined,
+        gender: undefined, concentration: undefined, releaseYear: undefined, longevity: undefined, sillage: undefined,
       } as ProductDetails,
       longDescription: undefined,
       price: undefined,
@@ -90,17 +93,16 @@ async function getPerfumesByBrandId(brandId: string): Promise<Perfume[]> {
   }) as Perfume[];
 }
 
-// generateMetadata fonksiyonunda tip belirtimi yok, import da yok!
 export async function generateMetadata({ params }: { params: { brandSlug: string } }) {
   const brand = await getBrandDetails(params.brandSlug);
   if (!brand) return { title: 'Marka Bulunamadı - FindYourScent' };
   return {
     title: `${brand.name} Parfümleri | FindYourScent`,
     description: brand.description || `Keşfedin: ${brand.name} markasının tüm parfüm koleksiyonu ve marka hikayesi.`,
-    openGraph: { 
-      title: `${brand.name} - FindYourScent`, 
-      description: brand.description, 
-      images: brand.banner ? [{ url: brand.banner }] : (brand.logo ? [{ url: brand.logo }] : []) 
+    openGraph: {
+      title: `${brand.name} - FindYourScent`,
+      description: brand.description,
+      images: brand.banner ? [{ url: brand.banner }] : (brand.logo ? [{ url: brand.logo }] : [])
     },
   };
 }
@@ -113,7 +115,7 @@ export async function generateStaticParams() {
 
 export default async function BrandDetailPage({ params }: { params: { brandSlug: string } }) {
   const brand = await getBrandDetails(params.brandSlug);
-  
+
   if (!brand) {
     notFound();
   }
@@ -122,14 +124,14 @@ export default async function BrandDetailPage({ params }: { params: { brandSlug:
   return (
     <div className="min-h-screen bg-gray-50">
       {brand.banner && (
-        <div 
+        <div
           className="h-[45vh] sm:h-[50vh] md:h-[60vh] bg-cover bg-center relative"
           style={{ backgroundImage: `url(${brand.banner})` }}
         >
           <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center text-center p-4">
             {brand.logo && (
               <div className="mb-4 sm:mb-6 w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 relative bg-white/20 backdrop-blur-sm rounded-full p-2 shadow-lg">
-                <Image src={brand.logo} alt={`${brand.name} Logosu`} fill style={{objectFit: 'contain'}} className="rounded-full"/>
+                <Image src={brand.logo} alt={`${brand.name} Logosu`} fill style={{ objectFit: 'contain' }} className="rounded-full" />
               </div>
             )}
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-serif font-bold text-white drop-shadow-md">
@@ -150,11 +152,11 @@ export default async function BrandDetailPage({ params }: { params: { brandSlug:
             <h2 className="text-2xl sm:text-3xl font-serif font-semibold text-gray-800 text-center mb-6 md:mb-8">
               Markamızın Hikayesi
             </h2>
-            <div 
-                className="prose prose-base sm:prose-lg max-w-none text-gray-700 font-sans leading-relaxed whitespace-pre-line 
+            <div
+              className="prose prose-base sm:prose-lg max-w-none text-gray-700 font-sans leading-relaxed whitespace-pre-line 
                            prose-headings:font-serif prose-headings:text-gray-800 prose-strong:font-semibold"
             >
-              <p>{brand.longDescription}</p> 
+              <p>{brand.longDescription}</p>
             </div>
           </section>
         )}
