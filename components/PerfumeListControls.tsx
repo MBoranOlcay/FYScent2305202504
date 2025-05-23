@@ -79,13 +79,9 @@ export default function PerfumeListControls({ initialPerfumes }: PerfumeListCont
     setSelectedFamilies(families);
     setIsFilterModalOpen(false);
   };
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const removeBrandFilter = (brandToRemove: string) => setSelectedBrands(prev => prev.filter(b => b !== brandToRemove));
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const removeNoteFilter = (noteToRemove: string) => setSelectedNotes(prev => prev.filter(n => n !== noteToRemove));
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const removeFamilyFilter = (familyToRemove: string) => setSelectedFamilies(prev => prev.filter(f => f !== familyToRemove));
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const clearAllFilters = () => { setSearchTerm(""); setSelectedBrands([]); setSelectedNotes([]); setSelectedFamilies([]); };
 
   const headerHeight = "5rem";
