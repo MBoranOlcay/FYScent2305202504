@@ -5,15 +5,10 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import PerfumeCard from '@/components/PerfumeCard';
 
-// Slug üretici yardımcı fonksiyon
 const createBrandSlugForURL = (brandName: string): string => {
     if (!brandName) return "";
     return brandName.toLowerCase().replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ş/g, 's').replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ç/g, 'c').replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
 };
-
-interface BrandDetailPageProps {
-  params: { brandSlug: string };
-}
 
 async function getBrandDetails(slug: string): Promise<Brand | null> {
   const { data, error } = await supabase
@@ -96,8 +91,8 @@ async function getPerfumesByBrandId(brandId: string): Promise<Perfume[]> {
   }) as Perfume[];
 }
 
-// SADECE PARAMS OBJE OLARAK ALINIR, PROMISE DEĞİL!
-export async function generateMetadata({ params }: BrandDetailPageProps): Promise<Metadata> {
+// *** TYPE INLINE OLARAK VERİLDİ ***
+export async function generateMetadata({ params }: { params: { brandSlug: string } }) {
   const brand = await getBrandDetails(params.brandSlug);
   if (!brand) return { title: 'Marka Bulunamadı - FindYourScent' };
   return {
@@ -118,7 +113,8 @@ export async function generateStaticParams() {
   return brandsFromDB.filter(b => b.slug).map((b) => ({ brandSlug: b.slug! }));
 }
 
-export default async function BrandDetailPage({ params }: BrandDetailPageProps) {
+// *** TYPE INLINE OLARAK VERİLDİ ***
+export default async function BrandDetailPage({ params }: { params: { brandSlug: string } }) {
   const brand = await getBrandDetails(params.brandSlug);
   
   if (!brand) {
