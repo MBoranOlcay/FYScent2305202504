@@ -1,11 +1,11 @@
-// Hatayı önlemek için:
 import Image from 'next/image';
 import { supabase } from '@/lib/supabaseClient';
 import type { Brand, Product as Perfume, FragranceNote, ProductDetails } from '@/types';
 import { notFound } from 'next/navigation';
-import type { Metadata } from 'next'; // ResolvingMetadata kaldırıldı
+import type { Metadata } from 'next';
 import PerfumeCard from '@/components/PerfumeCard';
 
+// Slug üretici yardımcı fonksiyon
 const createBrandSlugForURL = (brandName: string): string => {
     if (!brandName) return "";
     return brandName.toLowerCase().replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ş/g, 's').replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ç/g, 'c').replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
@@ -16,7 +16,6 @@ interface BrandDetailPageProps {
 }
 
 async function getBrandDetails(slug: string): Promise<Brand | null> {
-  console.log(`[BrandDetail - getBrandDetails] Fetching brand for slug: ${slug}`);
   const { data, error } = await supabase
     .from('brands')
     .select(`
@@ -27,8 +26,8 @@ async function getBrandDetails(slug: string): Promise<Brand | null> {
     .eq('slug', slug)
     .single();
 
-  if (error) { console.error(`Supabase error fetching brand by SLUG (${slug}):`, error.message); return null; }
-  if (!data) { console.log(`Supabase: Brand with slug '${slug}' not found.`); return null; }
+  if (error) return null;
+  if (!data) return null;
 
   let perfumeCount = 0;
   if (data.perfumes_count && Array.isArray(data.perfumes_count) && data.perfumes_count.length > 0) {
@@ -54,7 +53,6 @@ async function getBrandDetails(slug: string): Promise<Brand | null> {
 }
 
 async function getPerfumesByBrandId(brandId: string): Promise<Perfume[]> {
-  console.log(`[BrandDetail - getPerfumesByBrandId] Fetching perfumes for brandId: ${brandId}`);
   const { data, error } = await supabase
     .from('perfumes')
     .select(`
@@ -70,8 +68,8 @@ async function getPerfumesByBrandId(brandId: string): Promise<Perfume[]> {
     .order('name', { ascending: true })
     .limit(20);
 
-  if (error) { console.error(`Supabase error fetching perfumes by brandId (${brandId}):`, error.message); return []; }
-  if (!data) { console.log(`Supabase: No perfumes found for brandId ${brandId}.`); return []; }
+  if (error) return [];
+  if (!data) return [];
   
   return data.map(p => {
     const brandNameFromJoin = p.brand && typeof p.brand === 'object' && 'name' in p.brand ? (p.brand as {name: string}).name : 'Bilinmeyen Marka';
@@ -98,6 +96,7 @@ async function getPerfumesByBrandId(brandId: string): Promise<Perfume[]> {
   }) as Perfume[];
 }
 
+// SADECE PARAMS OBJE OLARAK ALINIR, PROMISE DEĞİL!
 export async function generateMetadata({ params }: BrandDetailPageProps): Promise<Metadata> {
   const brand = await getBrandDetails(params.brandSlug);
   if (!brand) return { title: 'Marka Bulunamadı - FindYourScent' };
@@ -112,6 +111,7 @@ export async function generateMetadata({ params }: BrandDetailPageProps): Promis
   };
 }
 
+// PARAMS YOK, SADECE BOŞ FONKSİYON
 export async function generateStaticParams() {
   const { data: brandsFromDB, error } = await supabase.from('brands').select('slug');
   if (error || !brandsFromDB) { return []; }
