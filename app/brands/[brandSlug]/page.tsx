@@ -3,12 +3,10 @@ import { supabase } from '@/lib/supabaseClient';
 import type { Brand, Product as Perfume, FragranceNote, ProductDetails } from '@/types';
 import { notFound } from 'next/navigation';
 import PerfumeCard from '@/components/PerfumeCard';
-import { Metadata } from 'next';
+import { Metadata, PageProps } from 'next'; // PageProps'u import ettik
 
-type Props = {
-  params: { brandSlug: string }
-  searchParams: { [key: string]: string | string[] | undefined }
-}
+// Props tipini Next.js'in genel tanımına benzer şekilde güncelliyoruz
+type Props = PageProps<{ brandSlug: string }>;
 
 // Yardımcı fonksiyon
 const createBrandSlugForURL = (brandName: string): string => {
@@ -116,7 +114,8 @@ async function getPerfumesByBrandId(brandId: string): Promise<Perfume[]> {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const brand = await getBrandDetails(params.brandSlug);
+  // params.brandSlug'ı string olarak belirtiyoruz
+  const brand = await getBrandDetails(params.brandSlug as string);
   if (!brand) return { title: 'Marka Bulunamadı - FindYourScent' };
   return {
     title: `${brand.name} Parfümleri | FindYourScent`,
@@ -146,72 +145,72 @@ export async function generateStaticParams() {
 }
 
 export default async function BrandDetailPage({ params }: Props) {
-  console.log(`[BrandDetailPage] Rendering for slug: ${params.brandSlug}`); // Log eklendi
-  const brand = await getBrandDetails(params.brandSlug);
+  // params.brandSlug'ı string olarak belirtiyoruz
+  const brand = await getBrandDetails(params.brandSlug as string);
 
   if (!brand) {
     console.log(`[BrandDetailPage] Brand not found for slug: ${params.brandSlug}, calling notFound()`); // notFound logu eklendi
     notFound();
   }
   const brandPerfumes = brand.id ? await getPerfumesByBrandId(brand.id.toString()) : [];
-  console.log(`[BrandDetailPage] Found ${brandPerfumes.length} perfumes for brand: ${brand.name}`); // Parfüm sayısı logu eklendi
-
+  console.log(`[BrandDetailPage] Found ${brandPerfumes.length} perfumes for brand: ${brand.name}`); // Parfüm sayısı logu eklendia
+  onsole.log(`[BrandDetailPage] Rendering for slug: ${params.brandSlug}`); // Log eklendi
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {brand.banner && (
-        <div
+    <div className="min-h-screen bg-gray-50">  if (!brand) {
+      {brand.banner && (    console.log(`[BrandDetailPage] Brand not found for slug: ${params.brandSlug}, calling notFound()`); // notFound logu eklendi
+        <divnd();
           className="h-[45vh] sm:h-[50vh] md:h-[60vh] bg-cover bg-center relative"
-          style={{ backgroundImage: `url(${brand.banner})` }}
-        >
+          style={{ backgroundImage: `url(${brand.banner})` }}brand.id ? await getPerfumesByBrandId(brand.id.toString()) : [];
+        >g(`[BrandDetailPage] Found ${brandPerfumes.length} perfumes for brand: ${brand.name}`); // Parfüm sayısı logu eklendi
           <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center text-center p-4">
             {brand.logo && (
-              <div className="mb-4 sm:mb-6 w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 relative bg-white/20 backdrop-blur-sm rounded-full p-2 shadow-lg">
+              <div className="mb-4 sm:mb-6 w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 relative bg-white/20 backdrop-blur-sm rounded-full p-2 shadow-lg">(
                 <Image src={brand.logo} alt={`${brand.name} Logosu`} fill style={{ objectFit: 'contain' }} className="rounded-full" />
               </div>
             )}
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-serif font-bold text-white drop-shadow-md">
-              {brand.name}
+              {brand.name}ackgroundImage: `url(${brand.banner})` }}
             </h1>
-            {brand.description && (
-              <p className="mt-2 text-sm sm:text-md md:text-lg text-gray-100 max-w-2xl mx-auto drop-shadow-sm">
-                {brand.description}
-              </p>
+            {brand.description && (text-center p-4">
+              <p className="mt-2 text-sm sm:text-md md:text-lg text-gray-100 max-w-2xl mx-auto drop-shadow-sm"> (
+                {brand.description}v className="mb-4 sm:mb-6 w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 relative bg-white/20 backdrop-blur-sm rounded-full p-2 shadow-lg">
+              </p>ogo} alt={`${brand.name} Logosu`} fill style={{ objectFit: 'contain' }} className="rounded-full" />
             )}
           </div>
-        </div>
-      )}
-
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-        {brand.longDescription && (
-          <section className="max-w-3xl mx-auto mb-12 md:mb-16 bg-white p-6 sm:p-8 rounded-xl shadow-lg">
+        </div>assName="text-4xl sm:text-5xl md:text-6xl font-serif font-bold text-white drop-shadow-md">
+      )}{brand.name}
+>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">rand.description && (
+        {brand.longDescription && (      <p className="mt-2 text-sm sm:text-md md:text-lg text-gray-100 max-w-2xl mx-auto drop-shadow-sm">
+          <section className="max-w-3xl mx-auto mb-12 md:mb-16 bg-white p-6 sm:p-8 rounded-xl shadow-lg">                {brand.description}
             <h2 className="text-2xl sm:text-3xl font-serif font-semibold text-gray-800 text-center mb-6 md:mb-8">
               Markamızın Hikayesi
             </h2>
             <div
               className="prose prose-base sm:prose-lg max-w-none text-gray-700 font-sans leading-relaxed whitespace-pre-line
                            prose-headings:font-serif prose-headings:text-gray-800 prose-strong:font-semibold"
-            >
+            >Name="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
               <p>{brand.longDescription}</p>
             </div>
-          </section>
+          </section>h2 className="text-2xl sm:text-3xl font-serif font-semibold text-gray-800 text-center mb-6 md:mb-8">
         )}
 
         {(brand.foundedYear || brand.headquarters || typeof brand.perfumeCount === 'number') && (
-          <section className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 text-center mb-12 md:mb-16 max-w-3xl mx-auto p-6 bg-white rounded-xl shadow-lg">
-            {brand.foundedYear && (
+          <section className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 text-center mb-12 md:mb-16 max-w-3xl mx-auto p-6 bg-white rounded-xl shadow-lg">    className="prose prose-base sm:prose-lg max-w-none text-gray-700 font-sans leading-relaxed whitespace-pre-line
+            {brand.foundedYear && (                           prose-headings:font-serif prose-headings:text-gray-800 prose-strong:font-semibold"
               <div>
                 <p className="text-3xl sm:text-4xl font-serif text-amber-700 font-semibold">{brand.foundedYear}</p>
                 <p className="text-xs sm:text-sm text-gray-500 font-sans mt-1 uppercase tracking-wider">Kuruluş</p>
-              </div>
+              </div>>
             )}
             {brand.headquarters && (
-              <div>
-                <p className="text-3xl sm:text-4xl font-serif text-amber-700 font-semibold">{brand.headquarters}</p>
+              <div>dedYear || brand.headquarters || typeof brand.perfumeCount === 'number') && (
+                <p className="text-3xl sm:text-4xl font-serif text-amber-700 font-semibold">{brand.headquarters}</p>tion className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 text-center mb-12 md:mb-16 max-w-3xl mx-auto p-6 bg-white rounded-xl shadow-lg">
                 <p className="text-xs sm:text-sm text-gray-500 font-sans mt-1 uppercase tracking-wider">Merkez</p>
               </div>
             )}
-            {typeof brand.perfumeCount === 'number' && brand.perfumeCount > 0 && (
+            {typeof brand.perfumeCount === 'number' && brand.perfumeCount > 0 && (>
               <div>
                 <p className="text-3xl sm:text-4xl font-serif text-amber-700 font-semibold">{brand.perfumeCount}</p>
                 <p className="text-xs sm:text-sm text-gray-500 font-sans mt-1 uppercase tracking-wider">Parfüm</p>
@@ -220,17 +219,22 @@ export default async function BrandDetailPage({ params }: Props) {
           </section>
         )}
 
-        {brandPerfumes.length > 0 && (
-          <section>
-            <h2 className="text-2xl sm:text-3xl font-serif font-semibold text-gray-800 text-center mb-10 md:mb-12">
-              {brand.name} Koleksiyonundan Seçmeler
-            </h2>
+        {brandPerfumes.length > 0 && (brand.perfumeCount === 'number' && brand.perfumeCount > 0 && (
+          <section>    <div>
+            <h2 className="text-2xl sm:text-3xl font-serif font-semibold text-gray-800 text-center mb-10 md:mb-12">                <p className="text-3xl sm:text-4xl font-serif text-amber-700 font-semibold">{brand.perfumeCount}</p>
+              {brand.name} Koleksiyonundan Seçmelersm:text-sm text-gray-500 font-sans mt-1 uppercase tracking-wider">Parfüm</p>
+            </h2>>
             <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-8">
               {brandPerfumes.map((perfume) => (
                 <PerfumeCard key={perfume.id} perfume={perfume} />
               ))}
             </div>
           </section>
+        )}lassName="text-2xl sm:text-3xl font-serif font-semibold text-gray-800 text-center mb-10 md:mb-12">
+      </div>nd.name} Koleksiyonundan Seçmeler
+    </div>
+  );  <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-8">
+}          </section>
         )}
       </div>
     </div>
