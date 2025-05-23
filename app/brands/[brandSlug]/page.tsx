@@ -5,6 +5,11 @@ import { notFound } from 'next/navigation';
 import PerfumeCard from '@/components/PerfumeCard';
 import { Metadata } from 'next';
 
+type Props = {
+  params: { brandSlug: string }
+  searchParams: { [key: string]: string | string[] | undefined }
+}
+
 // Yardımcı fonksiyon
 const createBrandSlugForURL = (brandName: string): string => {
   if (!brandName) return "";
@@ -94,11 +99,7 @@ async function getPerfumesByBrandId(brandId: string): Promise<Perfume[]> {
   }) as Perfume[];
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { brandSlug: string }
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const brand = await getBrandDetails(params.brandSlug);
   if (!brand) return { title: 'Marka Bulunamadı - FindYourScent' };
   return {
@@ -118,11 +119,7 @@ export async function generateStaticParams() {
   return brandsFromDB.filter(b => b.slug).map((b) => ({ brandSlug: b.slug! }));
 }
 
-export default async function BrandDetailPage({
-  params,
-}: {
-  params: { brandSlug: string }
-}) {
+export default async function BrandDetailPage({ params }: Props) {
   const brand = await getBrandDetails(params.brandSlug);
 
   if (!brand) {
